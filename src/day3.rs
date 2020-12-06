@@ -39,7 +39,6 @@ fn get_trees_on_slope(input: &Vec<Vec<char>>, slide: usize, line_skip: usize) ->
         current_index += slide;
         current_index %= width;
     }
-    println!("{:?}", trees);
     trees
 }
 
