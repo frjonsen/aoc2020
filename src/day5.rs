@@ -13,14 +13,14 @@ pub fn search(
     upper_char: char,
 ) -> u32 {
     let mut min = lowest;
-    let mut max = highest;
+    let mut _max = highest;
     let mut sub = highest + 1;
 
     for c in partitioning {
         sub /= 2;
         match c {
             _ if *c == bottom_char => {
-                max -= sub;
+                _max -= sub;
             }
             _ if *c == upper_char => {
                 min += sub;
