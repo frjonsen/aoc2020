@@ -19,14 +19,15 @@ lazy_static! {
     static ref PART2_PATTERN: Regex = Regex::new(r"(\d+) (\w+ \w+)").unwrap();
 }
 pub fn parse_rule(line: &String, bag_rules: &mut HashMap<String, HashSet<String>>) {
-    let matches = PART1_PATTERN
+    let mut matches = PART1_PATTERN
         .find_iter(line)
         .map(|c| c.as_str().to_owned())
-        .collect::<Vec<_>>();
+        .collect::<Vec<_>>()
+        .into_iter();
 
-    let mut iter = matches.into_iter();
-    let container = iter.next().unwrap().to_owned();
-    iter.filter(|f| f != "bags contain")
+    let container = matches.next().unwrap().to_owned();
+    matches
+        .filter(|f| f != "bags contain")
         .take_while(|c| c != "no other")
         .for_each(|c| {
             bag_rules
@@ -41,16 +42,17 @@ pub fn parse_rule_part_2(line: &String) -> (String, HashSet<Rule>) {
     let container = (*parts.get(0).expect("Found no container in line"))
         .trim()
         .to_owned();
-    let contained_in_parts = parts.get(1).expect("Found no contained in line").split(",");
-    let mut rules = HashSet::new();
-    for p in contained_in_parts {
-        if let Some(m) = PART2_PATTERN.captures(p) {
-            rules.insert(Rule {
-                count: m.get(1).unwrap().as_str().parse().unwrap(),
-                bag_name: m.get(2).unwrap().as_str().to_owned(),
-            });
-        }
-    }
+    let rules = parts
+        .get(1)
+        .expect("Found no contained in line")
+        .split(",")
+        .map(|f| PART2_PATTERN.captures(f))
+        .flatten()
+        .map(|f| Rule {
+            count: f.get(1).unwrap().as_str().parse().unwrap(),
+            bag_name: f.get(2).unwrap().as_str().to_owned(),
+        })
+        .collect();
 
     (container, rules)
 }
@@ -59,17 +61,18 @@ fn count_containers<'a>(
     contained: &String,
     rules: &'a HashMap<String, HashSet<String>>,
 ) -> HashSet<&'a String> {
-    if let Some(contained_in) = rules.get(contained) {
-        let mut known_containers: HashSet<&String> = contained_in.iter().map(|s| s).collect();
+    rules
+        .get(contained)
+        .map(|contained_in| {
+            let mut known_containers: HashSet<&String> = contained_in.iter().collect();
 
-        for c in contained_in {
-            known_containers = &known_containers | &count_containers(c, rules);
-        }
+            for c in contained_in {
+                known_containers = &known_containers | &count_containers(c, rules);
+            }
 
-        known_containers
-    } else {
-        HashSet::new()
-    }
+            known_containers
+        })
+        .unwrap_or_else(HashSet::new)
 }
 
 #[aoc(day7, part1)]
