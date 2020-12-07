@@ -1,3 +1,4 @@
+use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
 
 use regex::Regex;
@@ -13,9 +14,12 @@ pub fn input_generator(input: &str) -> Vec<String> {
     input.lines().map(|l| l.to_owned()).collect()
 }
 
+lazy_static! {
+    static ref PART1_PATTERN: Regex = Regex::new(r"([[:lower:]]+ [[:lower:]]+)").unwrap();
+    static ref PART2_PATTERN: Regex = Regex::new(r"(\d+) (\w+ \w+)").unwrap();
+}
 pub fn parse_rule(line: &String, bag_rules: &mut HashMap<String, HashSet<String>>) {
-    let bag_rule_pattern = Regex::new(r"([a-z]+ [a-z]+)").unwrap();
-    let matches = bag_rule_pattern
+    let matches = PART1_PATTERN
         .find_iter(line)
         .map(|c| c.as_str().to_owned())
         .collect::<Vec<_>>();
@@ -33,7 +37,6 @@ pub fn parse_rule(line: &String, bag_rules: &mut HashMap<String, HashSet<String>
 }
 
 pub fn parse_rule_part_2(line: &String) -> (String, HashSet<Rule>) {
-    let bag_rule_pattern = Regex::new(r"(?P<count>\d+) (?P<name>\w+ \w+)").unwrap();
     let parts: Vec<_> = line.split("bags contain").collect();
     let container = (*parts.get(0).expect("Found no container in line"))
         .trim()
@@ -41,10 +44,10 @@ pub fn parse_rule_part_2(line: &String) -> (String, HashSet<Rule>) {
     let contained_in_parts = parts.get(1).expect("Found no contained in line").split(",");
     let mut rules = HashSet::new();
     for p in contained_in_parts {
-        if let Some(m) = bag_rule_pattern.captures(p) {
+        if let Some(m) = PART2_PATTERN.captures(p) {
             rules.insert(Rule {
-                bag_name: m.name("name").unwrap().as_str().to_owned(),
-                count: m.name("count").unwrap().as_str().parse().unwrap(),
+                count: m.get(1).unwrap().as_str().parse().unwrap(),
+                bag_name: m.get(2).unwrap().as_str().to_owned(),
             });
         }
     }
