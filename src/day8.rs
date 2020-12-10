@@ -38,21 +38,16 @@ fn run_until_loop_or_exit(
 ) -> Option<i32> {
     let mut acc = 0i32;
 
-    loop {
-        if !prev_visits.insert(p_counter) {
-            return None;
-        }
+    let branch = |v, p: &BTreeSet<usize>, p_c| {
+        run_until_loop_or_exit(op_codes, p.clone(), true, add_usize(p_c, v))
+    };
 
+    while prev_visits.insert(p_counter) {
         if let Some(current_code) = op_codes.get(p_counter) {
             match current_code {
                 OpCode::Nop(f) => {
                     if !have_branched {
-                        if let Some(v) = run_until_loop_or_exit(
-                            op_codes,
-                            prev_visits.clone(),
-                            true,
-                            add_usize(p_counter, *f),
-                        ) {
+                        if let Some(v) = branch(*f, &prev_visits, p_counter) {
                             return Some(acc + v);
                         }
                     }
@@ -64,12 +59,7 @@ fn run_until_loop_or_exit(
                 }
                 OpCode::Jmp(v) => {
                     if !have_branched {
-                        if let Some(v) = run_until_loop_or_exit(
-                            op_codes,
-                            prev_visits.clone(),
-                            true,
-                            p_counter + 1,
-                        ) {
+                        if let Some(v) = branch(1, &prev_visits, p_counter) {
                             return Some(acc + v);
                         }
                     }
@@ -80,6 +70,8 @@ fn run_until_loop_or_exit(
             return Some(acc);
         }
     }
+
+    None
 }
 
 #[aoc(day8, part2)]
@@ -94,11 +86,7 @@ fn day8_part1(op_codes: &Vec<OpCode>) -> i32 {
 
     let mut visited: BTreeSet<usize> = BTreeSet::new();
 
-    loop {
-        if !visited.insert(p_counter) {
-            break;
-        }
-
+    while visited.insert(p_counter) {
         let current_code = op_codes
             .get(p_counter)
             .expect(&format!("No op code at {}", &p_counter));
