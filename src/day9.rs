@@ -16,7 +16,6 @@ fn calc_valid_numbers(input: &Vec<u64>, start: usize, preamble_length: usize) ->
         let mut it = input.iter().skip(current).take(preamble_length);
         while let Some(c) = it.next() {
             for i in it.clone() {
-                println!("{}", *i);
                 valid_numbers.insert(c + *i);
             }
         }
