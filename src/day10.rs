@@ -1,6 +1,8 @@
+use std::collections::BTreeMap;
+
 #[aoc_generator(day10)]
-fn input_generator(input: &str) -> Vec<u32> {
-    let mut numbers: Vec<u32> = input
+fn input_generator(input: &str) -> Vec<i32> {
+    let mut numbers: Vec<i32> = input
         .lines()
         .map(str::trim)
         .map(str::parse)
@@ -12,7 +14,7 @@ fn input_generator(input: &str) -> Vec<u32> {
 }
 
 #[aoc(day10, part1, window)]
-fn day10_part1(input: &Vec<u32>) -> u32 {
+fn day10_part1(input: &Vec<i32>) -> u32 {
     let mut frequency = vec![0, 0, 1];
     input
         .windows(2)
@@ -22,13 +24,43 @@ fn day10_part1(input: &Vec<u32>) -> u32 {
     frequency[0] * frequency[2]
 }
 
+#[aoc(day10, part2)]
+fn day10_part2(input: &Vec<i32>) -> u64 {
+    let mut paths: BTreeMap<i32, u64> = BTreeMap::new();
+    paths.insert(0, 1);
+
+    for i in input.iter().enumerate() {
+        let c = i.0;
+        let range = ((c as i64 - 3).max(0) as usize)..c;
+        let past_three: u64 = input[range]
+            .iter()
+            .filter(|p| i.1 - *p <= 3)
+            .map(|k| paths.get(k).unwrap())
+            .sum();
+
+        paths.insert(*i.1, past_three.max(1));
+    }
+
+    *paths.get(input.last().unwrap()).unwrap()
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{day10_part1, input_generator};
+    use super::{day10_part1, day10_part2, input_generator};
 
-    #[test]
-    fn test_given_part_1() {
-        let input = "28
+    const INPUT1: &'static str = "16
+    10
+    15
+    5
+    1
+    11
+    7
+    19
+    6
+    12
+    4";
+
+    const INPUT2: &'static str = "28
         33
         18
         42
@@ -59,8 +91,31 @@ mod tests {
         34
         10
         3";
-        let numbers = input_generator(input);
+
+    #[test]
+    fn test_given_part_1_1() {
+        let numbers = input_generator(INPUT1);
+        let res = day10_part1(&numbers);
+        assert_eq!(35, res);
+    }
+
+    #[test]
+    fn test_given_part_1_2() {
+        let numbers = input_generator(INPUT2);
         let res = day10_part1(&numbers);
         assert_eq!(220, res);
+    }
+    #[test]
+    fn test_given_part_2_1() {
+        let numbers = input_generator(INPUT1);
+        let res = day10_part2(&numbers);
+        assert_eq!(8, res);
+    }
+
+    #[test]
+    fn test_given_part_2_2() {
+        let numbers = input_generator(INPUT2);
+        let res = day10_part2(&numbers);
+        assert_eq!(19208, res);
     }
 }
