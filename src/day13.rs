@@ -9,6 +9,11 @@ struct Input {
     busses: Vec<Entry>,
 }
 
+struct BezoutIdentity {
+    s: i64,
+    t: i64,
+}
+
 #[aoc_generator(day13)]
 fn input_generator(input: &str) -> Input {
     let lines: Vec<&str> = input.lines().map(&str::trim).collect();
@@ -68,9 +73,50 @@ fn day13_part2(input: &Input) -> u64 {
     panic!("Didn't find it")
 }
 
+fn extended_euclidean(N: i64, n: i64) -> BezoutIdentity {
+    let mut t0 = 0;
+    let mut t1 = 1;
+    let mut s0 = 1;
+    let mut s1 = 0;
+    let mut r2 = N;
+    let mut r1 = n;
+
+    while r1 != 0 {
+        let q1 = r2 / r1;
+        let r2_temp = r2;
+        r2 = r1;
+        r1 = r2_temp - q1 * r1;
+
+        let t_temp = t0 - q1 * t1;
+        t0 = t1;
+        t1 = t_temp % N;
+
+        let s_temp = s0 - q1 * s1;
+        s0 = s1;
+        s1 = s_temp % N;
+    }
+
+    BezoutIdentity { s: s0, t: t0 }
+}
+
+fn chinese_remainder_theorem(n: &[i64], a: &[i64]) -> i64 {
+    let N: i64 = n.iter().product();
+    let x: i64 = n
+        .iter()
+        .enumerate()
+        .map(|(i, n)| {
+            let b = extended_euclidean(*n, N / n);
+            a[i] * b.t * N / n
+        })
+        .sum();
+    x % N
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{day13_part1, day13_part2, input_generator};
+    use super::{
+        chinese_remainder_theorem, day13_part1, day13_part2, extended_euclidean, input_generator,
+    };
 
     #[test]
     fn test_given_part_1() {
@@ -130,5 +176,11 @@ mod tests {
         let generated = input_generator(input);
         let res = day13_part2(&generated);
         assert_eq!(res, 1202161486);
+    }
+
+    #[test]
+    fn test_theorem() {
+        let res = chinese_remainder_theorem(&[3, 5, 7], &[2, 3, 2]);
+        assert_eq!(res, 23);
     }
 }
