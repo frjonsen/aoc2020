@@ -49,28 +49,21 @@ fn day13_part1(input: &Input) -> u64 {
     (next_departure.1 - input.timestamp) * next_departure.0
 }
 
-//#[aoc(day13, part2)]
-fn day13_part2(input: &Input) -> u64 {
+#[aoc(day13, part2)]
+fn day13_part2(input: &Input) -> i64 {
     let busses: Vec<_> = input
         .busses
         .iter()
         .enumerate()
         .filter_map(|f| match f.1 {
-            Entry::Bus(t) => Some((f.0 as u64, *t)),
+            Entry::Bus(t) => Some((((*t as i64) - (f.0 as i64)).rem_euclid(*t as i64), *t)),
             _ => None,
         })
         .collect();
 
-    let first = busses.first().unwrap();
-    let busses: Vec<_> = busses.iter().skip(1).collect();
-
-    for min in (first.1..).step_by(first.1 as usize) {
-        if busses.iter().all(|q| (min + q.0) % q.1 == 0) {
-            return min;
-        }
-    }
-
-    panic!("Didn't find it")
+    let n: Vec<i64> = busses.iter().map(|b| b.1 as i64).collect();
+    let a: Vec<i64> = busses.iter().map(|b| b.0).collect();
+    chinese_remainder_theorem(&n, &a)
 }
 
 fn extended_euclidean(N: i64, n: i64) -> BezoutIdentity {
@@ -89,34 +82,33 @@ fn extended_euclidean(N: i64, n: i64) -> BezoutIdentity {
 
         let t_temp = t0 - q1 * t1;
         t0 = t1;
-        t1 = t_temp % N;
+        t1 = t_temp;
 
         let s_temp = s0 - q1 * s1;
         s0 = s1;
-        s1 = s_temp % N;
+        s1 = s_temp;
     }
 
     BezoutIdentity { s: s0, t: t0 }
 }
 
 fn chinese_remainder_theorem(n: &[i64], a: &[i64]) -> i64 {
-    let N: i64 = n.iter().product();
-    let x: i64 = n
-        .iter()
-        .enumerate()
-        .map(|(i, n)| {
-            let b = extended_euclidean(*n, N / n);
-            a[i] * b.t * N / n
+    let prod: i64 = n.iter().product();
+    n.iter()
+        .zip(a)
+        .map(|(n, a)| {
+            let p = prod / *n;
+            let b = extended_euclidean(*n, p);
+            let res = p * b.t * a;
+            res.rem_euclid(prod)
         })
-        .sum();
-    x % N
+        .sum::<i64>()
+        .rem_euclid(prod)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        chinese_remainder_theorem, day13_part1, day13_part2, extended_euclidean, input_generator,
-    };
+    use super::{chinese_remainder_theorem, day13_part1, day13_part2, input_generator};
 
     #[test]
     fn test_given_part_1() {
@@ -128,7 +120,7 @@ mod tests {
     }
 
     #[test]
-    fn test_given_part_2() {
+    fn test_given_part_2_sample_1() {
         let input = "939
         7,13,x,x,59,x,31,19";
         let generated = input_generator(input);
@@ -179,8 +171,41 @@ mod tests {
     }
 
     #[test]
+    fn test_correct() {
+        let expected = 702970661767766;
+        let input = "1000495
+        19,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,x,x,x,521,x,x,x,x,x,x,x,23,x,x,x,x,x,x,x,x,17,x,x,x,x,x,x,x,x,x,x,x,29,x,523,x,x,x,x,x,37,x,x,x,x,x,x,13";
+        let generated = input_generator(input);
+        let res = day13_part2(&generated);
+        assert_eq!(res, expected);
+    }
+
+    #[test]
     fn test_theorem() {
         let res = chinese_remainder_theorem(&[3, 5, 7], &[2, 3, 2]);
         assert_eq!(res, 23);
+    }
+
+    #[test]
+    fn test_theorem_2() {
+        let res = chinese_remainder_theorem(&[5, 7, 12], &[0, 6, 10]);
+        assert_eq!(res, 370);
+    }
+
+    #[test]
+    fn test_theorem_3() {
+        let res = chinese_remainder_theorem(&[13, 5, 7], &[2, 3, 2]);
+        assert_eq!(res, 93);
+    }
+
+    #[test]
+    fn test_theorem_4() {
+        let res = chinese_remainder_theorem(&[13, 5, 29], &[2, 5, 7]);
+        assert_eq!(res, 210);
+    }
+    #[test]
+    fn test_theorem_5() {
+        let res = chinese_remainder_theorem(&[13, 5, 29], &[24, 5, 7]);
+        assert_eq!(res, 1805);
     }
 }
