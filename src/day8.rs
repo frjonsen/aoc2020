@@ -6,7 +6,7 @@ enum OpCode {
 }
 
 fn line_to_op_code(line: &str) -> OpCode {
-    let parts = line.split(" ").collect::<Vec<_>>();
+    let parts = line.split(' ').collect::<Vec<_>>();
     let op_code = parts.get(0).expect("No op code in line");
     let val: i32 = parts
         .get(1)
@@ -17,7 +17,7 @@ fn line_to_op_code(line: &str) -> OpCode {
         _ if *op_code == "nop" => OpCode::Nop(val),
         _ if *op_code == "acc" => OpCode::Acc(val),
         _ if *op_code == "jmp" => OpCode::Jmp(val),
-        _ => panic!(format!("Unknown op code {}", op_code)),
+        _ => panic!("Unknown op code {}", op_code),
     }
 }
 
@@ -31,7 +31,7 @@ fn add_usize(a: usize, b: i32) -> usize {
 }
 
 fn run_until_loop_or_exit(
-    op_codes: &Vec<OpCode>,
+    op_codes: &[OpCode],
     mut prev_visits: BTreeSet<usize>,
     have_branched: bool,
     mut p_counter: usize,

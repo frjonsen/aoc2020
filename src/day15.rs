@@ -8,7 +8,7 @@ fn input_generator(input: &str) -> Vec<u64> {
         .collect()
 }
 
-fn find_nth_number(input: &[u64], n: usize) -> u64 {
+fn _find_nth_number(input: &[u64], n: usize) -> u64 {
     let mut numbers: HashMap<usize, usize> = HashMap::new();
     let mut spoken = 0;
 
@@ -77,7 +77,7 @@ fn day15_part2(input: &[u64]) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use super::{find_nth_array, find_nth_number};
+    use super::{_find_nth_number, find_nth_array};
 
     #[test]
     fn test_given_day_15() {
@@ -87,13 +87,13 @@ mod tests {
 
     #[test]
     fn test_part_1_ex_1() {
-        let res = find_nth_number(&[1, 3, 2], 2020);
+        let res = _find_nth_number(&[1, 3, 2], 2020);
         assert_eq!(res, 1);
     }
 
     #[test]
     fn test_part_1_correct() {
-        let res = find_nth_number(&[0, 1, 4, 13, 15, 12, 16], 2020);
+        let res = _find_nth_number(&[0, 1, 4, 13, 15, 12, 16], 2020);
         assert_eq!(res, 1665);
     }
 }

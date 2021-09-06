@@ -108,7 +108,7 @@ impl Ship {
             90 => Instruction::East(*distance),
             180 => Instruction::South(*distance),
             270 => Instruction::West(*distance),
-            _ => panic!(format!("{} is not an even angle", self.facing)),
+            _ => panic!("{} is not an even angle", self.facing),
         };
         self.travel_by_direction(&instruction);
     }
@@ -144,9 +144,9 @@ impl Ship2 {
     }
 
     pub fn rotate(&mut self, instruction: &Instruction) {
-        let degree = match instruction {
-            &Instruction::Left(d) => 360 - d,
-            &Instruction::Right(d) => d,
+        let degree = match *instruction {
+            Instruction::Left(d) => 360 - d,
+            Instruction::Right(d) => d,
             _ => panic!("Not a rotation instruction"),
         };
         self.waypoint = self.waypoint.rotate(degree);
@@ -185,14 +185,14 @@ fn input_generator(input: &str) -> Vec<Instruction> {
                 "F" => Instruction::Forward(f),
                 "R" => Instruction::Right(f),
                 "L" => Instruction::Left(f),
-                _ => panic!(format!("Unexpected instruction {}", &l)),
+                _ => panic!("Unexpected instruction {}", &l),
             }
         })
         .collect()
 }
 
 #[aoc(day12, part1)]
-fn day12_part1(input: &Vec<Instruction>) -> u64 {
+fn day12_part1(input: &[Instruction]) -> u64 {
     let mut ship = Ship::new();
     for i in input {
         ship.travel(i);

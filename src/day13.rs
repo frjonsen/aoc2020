@@ -10,7 +10,7 @@ struct Input {
 }
 
 struct BezoutIdentity {
-    s: i64,
+    _s: i64,
     t: i64,
 }
 
@@ -66,12 +66,12 @@ fn day13_part2(input: &Input) -> i64 {
     chinese_remainder_theorem(&n, &a)
 }
 
-fn extended_euclidean(N: i64, n: i64) -> BezoutIdentity {
+fn extended_euclidean(prod: i64, n: i64) -> BezoutIdentity {
     let mut t0 = 0;
     let mut t1 = 1;
     let mut s0 = 1;
     let mut s1 = 0;
-    let mut r2 = N;
+    let mut r2 = prod;
     let mut r1 = n;
 
     while r1 != 0 {
@@ -89,7 +89,7 @@ fn extended_euclidean(N: i64, n: i64) -> BezoutIdentity {
         s1 = s_temp;
     }
 
-    BezoutIdentity { s: s0, t: t0 }
+    BezoutIdentity { _s: s0, t: t0 }
 }
 
 fn chinese_remainder_theorem(n: &[i64], a: &[i64]) -> i64 {

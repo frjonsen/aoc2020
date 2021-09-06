@@ -25,7 +25,7 @@ pub fn search(
             _ if *c == upper_char => {
                 min += sub;
             }
-            _ => panic!(format!("Unexpected character {}", c)),
+            _ => panic!("Unexpected character {}", c),
         }
     }
     min
