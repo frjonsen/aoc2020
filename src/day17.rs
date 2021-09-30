@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use std::convert::TryInto;
 #[aoc_generator(day17)]
 fn input_generator(input: &str) -> Vec<Vec<bool>> {
     input
@@ -51,19 +50,6 @@ fn calculate_neighbors(coord: &Coordinate, edge: usize, neighbors: &[Vec<i64>]) 
     }
 
     to_check
-}
-
-fn print_cube_slice(cube: &[Vec<Vec<bool>>], max: usize, z: usize) {
-    for x in 0..max {
-        for y in 0..max {
-            let c = match cube[x][y][z] {
-                false => '.',
-                true => '#',
-            };
-            print!("{}", c);
-        }
-        println!();
-    }
 }
 
 #[aoc(day17, part1)]

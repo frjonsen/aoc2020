@@ -94,7 +94,6 @@ fn day19_part2(parts: &(Vec<String>, Vec<String>)) -> usize {
     let mut known_rules = KnownRules::new();
 
     let rule_42 = get_rule(42, &mut known_rules, &raw_rules);
-
     let rule_31 = get_rule(31, &mut known_rules, &raw_rules);
 
     let rule_31_pattern = Regex::new(&format!("({})", rule_31)).unwrap();
