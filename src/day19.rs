@@ -50,11 +50,8 @@ fn get_rule(rule_number: u64, known_rules: &mut KnownRules, raw_rules: &RawRules
     finished_rule
 }
 
-#[aoc(day19, part1)]
-fn day19_part1(parts: &(Vec<String>, Vec<String>)) -> usize {
-    let raw_rules: RawRules = parts
-        .0
-        .iter()
+fn parse_raw_rules<'a>(as_input: impl Iterator<Item = &'a String>) -> RawRules {
+    as_input
         .map(|l| {
             let rule_parts: Vec<_> = l.split(':').collect();
             (
@@ -62,7 +59,12 @@ fn day19_part1(parts: &(Vec<String>, Vec<String>)) -> usize {
                 rule_parts[1].trim().to_owned(),
             )
         })
-        .collect();
+        .collect()
+}
+
+#[aoc(day19, part1)]
+fn day19_part1(parts: &(Vec<String>, Vec<String>)) -> usize {
+    let raw_rules = parse_raw_rules(parts.0.iter());
 
     let mut known_rules = KnownRules::new();
 
@@ -79,17 +81,7 @@ fn day19_part1(parts: &(Vec<String>, Vec<String>)) -> usize {
 
 #[aoc(day19, part2)]
 fn day19_part2(parts: &(Vec<String>, Vec<String>)) -> usize {
-    let raw_rules: RawRules = parts
-        .0
-        .iter()
-        .map(|l| {
-            let rule_parts: Vec<_> = l.split(':').collect();
-            (
-                rule_parts[0].parse().unwrap(),
-                rule_parts[1].trim().to_owned(),
-            )
-        })
-        .collect();
+    let raw_rules = parse_raw_rules(parts.0.iter());
 
     let mut known_rules = KnownRules::new();
 
@@ -105,25 +97,21 @@ fn day19_part2(parts: &(Vec<String>, Vec<String>)) -> usize {
     ))
     .unwrap();
 
-    let mut matches = 0usize;
+    parts
+        .1
+        .iter()
+        .map(|m| zero_rule_pattern.captures_iter(m).collect::<Vec<_>>())
+        .filter(|m| {
+            if let Some(capture) = m.first() {
+                let to_matches = rule_31_pattern.find_iter(&capture["to"]).count();
+                let ft_matches = rule_42_pattern.find_iter(&capture["ft"]).count();
 
-    for message in parts.1.iter() {
-        if !zero_rule_pattern.is_match(message) {
-            continue;
-        }
-
-        let captures: Vec<_> = zero_rule_pattern.captures_iter(message).collect();
-        let capture = captures.first().unwrap();
-
-        let to_matches = rule_31_pattern.find_iter(&capture["to"]).count();
-        let ft_matches = rule_42_pattern.find_iter(&capture["ft"]).count();
-
-        if to_matches < ft_matches {
-            matches += 1;
-        }
-    }
-
-    matches
+                to_matches < ft_matches
+            } else {
+                false
+            }
+        })
+        .count()
 }
 
 #[cfg(test)]
