@@ -117,58 +117,7 @@ fn day19_part2(parts: &(Vec<String>, Vec<String>)) -> usize {
 #[cfg(test)]
 mod tests {
 
-    use super::{day19_part2, get_rule, input_generator, KnownRules, RawRules};
-
-    #[test]
-    fn test_basic_concat_from_known() {
-        let raw_rules: RawRules = vec![(1, "2 | 3".to_owned())].into_iter().collect();
-        let mut known_rules: KnownRules = vec![(2, "a".to_owned()), (3, "b".to_owned())]
-            .into_iter()
-            .collect();
-
-        let res = get_rule(1, &mut known_rules, &raw_rules);
-        assert_eq!(res, "(a|b)");
-    }
-
-    #[test]
-    fn test_basic_concat_from_raw() {
-        let raw_rules: RawRules = vec![
-            (1, "2 | 3".to_owned()),
-            (2, "\"a\"".to_owned()),
-            (3, "\"b\"".to_owned()),
-        ]
-        .into_iter()
-        .collect();
-        let res = get_rule(1, &mut KnownRules::new(), &raw_rules);
-        assert_eq!(res, "(a|b)");
-    }
-
-    #[test]
-    fn test_basic_concat_more() {
-        let raw_rules: RawRules = vec![
-            (1, "2 2 | 3 2".to_owned()),
-            (2, "\"a\"".to_owned()),
-            (3, "\"b\"".to_owned()),
-        ]
-        .into_iter()
-        .collect();
-        let res = get_rule(1, &mut KnownRules::new(), &raw_rules);
-        assert_eq!(res, "(aa|ba)");
-    }
-
-    #[test]
-    fn test_basic_concat_nested() {
-        let raw_rules: RawRules = vec![
-            (1, "2 4 | 3 2".to_owned()),
-            (2, "\"a\"".to_owned()),
-            (3, "\"b\"".to_owned()),
-            (4, "2 | 3".to_owned()),
-        ]
-        .into_iter()
-        .collect();
-        let res = get_rule(1, &mut KnownRules::new(), &raw_rules);
-        assert_eq!(res, "(a(a|b)|ba)");
-    }
+    use super::{day19_part2, input_generator};
 
     #[test]
     fn test_day_19_given_part_2() {
